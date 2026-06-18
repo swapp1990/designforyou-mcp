@@ -8,6 +8,13 @@ DesignForYou is an MCP-native design generator backed by 119 templates. Browse
 and recommend tools are free; generation is metered per user (50 free credits on
 sign-up).
 
+## Demo
+
+![DesignForYou demo — prompt to generated design](./demo.gif)
+
+*Describe what you want → the agent picks a template and generates a finished
+design. Logos, Instagram posts, app-store screenshots, and more.*
+
 - **Website:** https://designforyou.swapp1990.org
 - **MCP endpoint (remote, streamable HTTP):** `https://designforyou.swapp1990.org/mcp/v2/`
 - **Auth:** OAuth 2.1 + Dynamic Client Registration (sign in with Google or
