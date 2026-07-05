@@ -8,6 +8,17 @@
     "url": "https://github.com/swapp1990/designforyou-mcp",
     "source": "github"
   },
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "designforyou-mcp",
+      "version": "1.0.1",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ],
   "remotes": [
     {
       "type": "streamable-http",

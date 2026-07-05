@@ -1,0 +1,54 @@
+{
+  "name": "designforyou-mcp",
+  "version": "1.0.1",
+  "description": "MCP server for AI image generation — logos, app store screenshots, social posts, book covers, sprite sheets, and comics. Stdio→remote shim (npx) for the hosted DesignForYou MCP server.",
+  "mcpName": "org.swapp1990.designforyou/designforyou",
+  "bin": {
+    "designforyou-mcp": "bin.js"
+  },
+  "type": "commonjs",
+  "files": [
+    "bin.js",
+    "README.md",
+    "LICENSE",
+    "server.json"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "mcp-remote": "0.1.38"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "modelcontextprotocol",
+    "ai-image-generation",
+    "image-generation",
+    "logo-generator",
+    "logos",
+    "app-store-screenshots",
+    "social-media",
+    "book-covers",
+    "sprite-sheets",
+    "comics",
+    "visual-novel",
+    "design",
+    "claude",
+    "cursor",
+    "chatgpt",
+    "mcp-remote",
+    "designforyou"
+  ],
+  "author": "swapp1990",
+  "license": "MIT",
+  "homepage": "https://designforyou.swapp1990.org",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swapp1990/designforyou-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/swapp1990/designforyou-mcp/issues"
+  }
+}

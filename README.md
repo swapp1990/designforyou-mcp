@@ -1,5 +1,9 @@
 # DesignForYou — MCP server
 
+[![npm](https://img.shields.io/npm/v/designforyou-mcp?logo=npm)](https://www.npmjs.com/package/designforyou-mcp)
+[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-designforyou-2ea44f)](https://registry.modelcontextprotocol.io/v0/servers?search=designforyou)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+
 Generate **logos, social posts, app-store screenshots, comic panels, and
 visual-novel assets** from natural-language prompts — directly inside Claude
 Code, Cursor, ChatGPT, or any MCP client.
@@ -23,18 +27,52 @@ design. Logos, Instagram posts, app-store screenshots, and more.*
 
 ## Install
 
+One-liner (any MCP client that runs stdio servers) — the `designforyou-mcp` npm
+package is a thin [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) shim
+that bridges stdio to the hosted server and handles OAuth on the first paid call:
+
+```bash
+npx -y designforyou-mcp
+```
+
 ### Claude Code
+Native remote transport (recommended):
 ```bash
 claude mcp add --transport http designforyou https://designforyou.swapp1990.org/mcp/v2/
+```
+Or via the npm shim (stdio):
+```bash
+claude mcp add designforyou -- npx -y designforyou-mcp
 ```
 Then run any prompt below; Claude Code opens a browser for sign-in on the first
 paid call.
 
 ### Cursor
-Add to `.cursor/mcp.json` (or **Settings → MCP → Add**):
+
+[![Add to Cursor](https://img.shields.io/badge/Add%20to-Cursor-000?logo=cursor)](cursor://anysphere.cursor-deeplink/mcp/install?name=designforyou&config=eyJ1cmwiOiJodHRwczovL2Rlc2lnbmZvcnlvdS5zd2FwcDE5OTAub3JnL21jcC92Mi8ifQ==)
+
+One-click install:
+`cursor://anysphere.cursor-deeplink/mcp/install?name=designforyou&config=eyJ1cmwiOiJodHRwczovL2Rlc2lnbmZvcnlvdS5zd2FwcDE5OTAub3JnL21jcC92Mi8ifQ==`
+
+Or add to `.cursor/mcp.json` (**Settings → MCP → Add**):
 ```json
 {
   "mcpServers": {
+    "designforyou": {
+      "url": "https://designforyou.swapp1990.org/mcp/v2/"
+    }
+  }
+}
+```
+
+### VS Code
+
+[![Install in VS Code](https://img.shields.io/badge/Install-VS%20Code-0098FF?logo=visualstudiocode)](https://insiders.vscode.dev/redirect/mcp/install?name=designforyou&config=%7B%22url%22%3A%22https%3A%2F%2Fdesignforyou.swapp1990.org%2Fmcp%2Fv2%2F%22%7D)
+
+Or add to `.vscode/mcp.json`:
+```json
+{
+  "servers": {
     "designforyou": {
       "url": "https://designforyou.swapp1990.org/mcp/v2/"
     }
@@ -49,11 +87,13 @@ Add to `claude_desktop_config.json`:
   "mcpServers": {
     "designforyou": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "https://designforyou.swapp1990.org/mcp/v2/"]
+      "args": ["-y", "designforyou-mcp"]
     }
   }
 }
 ```
+(Equivalent to `npx -y mcp-remote https://designforyou.swapp1990.org/mcp/v2/` —
+the shim just pins the endpoint for you.)
 
 ### ChatGPT
 DesignForYou is being submitted to the ChatGPT app directory. Until then, use the
