@@ -3,7 +3,7 @@
   "name": "org.swapp1990.designforyou/designforyou",
   "description": "Generate logos, social posts, app screenshots, comic panels & visual-novel assets from prompts.",
   "version": "1.0.1",
-  "websiteUrl": "https://designforyou.swapp1990.org",
+  "websiteUrl": "https://designforyou.swapp1990.org/connect",
   "repository": {
     "url": "https://github.com/swapp1990/designforyou-mcp",
     "source": "github"

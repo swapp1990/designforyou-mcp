@@ -6,7 +6,7 @@
 
 Generate **logos, social posts, app-store screenshots, comic panels, and
 visual-novel assets** from natural-language prompts — directly inside Claude
-Code, Cursor, ChatGPT, or any MCP client.
+Code, Grok, Codex, Cursor, OpenCode, ChatGPT, or any MCP client.
 
 DesignForYou is an MCP-native design generator backed by 119 templates. Browse
 and recommend tools are free; generation is metered per user (50 free credits on
@@ -19,47 +19,73 @@ sign-up).
 *Describe what you want → the agent picks a template and generates a finished
 design. Logos, Instagram posts, app-store screenshots, and more.*
 
-- **Website:** https://designforyou.swapp1990.org
-- **MCP endpoint (remote, streamable HTTP):** `https://designforyou.swapp1990.org/mcp/v2/`
-- **Auth:** OAuth 2.1 + Dynamic Client Registration (sign in with Google or
-  email/password). Read-only tools work without auth.
-- **Privacy:** https://designforyou.swapp1990.org/privacy
+| | |
+|---|---|
+| **Website** | https://designforyou.swapp1990.org |
+| **Connect (human)** | https://designforyou.swapp1990.org/connect |
+| **Agent guide (plain text)** | https://designforyou.swapp1990.org/.well-known/mcp/connect.md |
+| **MCP URL** | `https://designforyou.swapp1990.org/mcp/v2/` (trailing slash required) |
+| **Privacy** | https://designforyou.swapp1990.org/privacy |
+
+## Auth
+
+| Path | What you do | Who stores secrets |
+|------|-------------|--------------------|
+| **OAuth (primary)** | Complete browser sign-in when the client prompts | **The MCP client** |
+| **Long-lived token (fallback)** | Sign in on the website → Generate on `/connect` → `DESIGNFORYOU_MCP_TOKEN` | **You** (env / header) |
+
+OAuth is the normal path. PAT minting is only for Codex, headless agents, or when OAuth stays “disabled / not connected.” Full recipes: [CONNECT.md](./CONNECT.md) or the live well-known guide above.
 
 ## Install
 
-One-liner (any MCP client that runs stdio servers) — the `designforyou-mcp` npm
-package is a thin [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) shim
-that bridges stdio to the hosted server and handles OAuth on the first paid call:
+### Claude Code (recommended)
 
-```bash
-npx -y designforyou-mcp
-```
-
-### Claude Code
-Native remote transport (recommended):
 ```bash
 claude mcp add --transport http designforyou https://designforyou.swapp1990.org/mcp/v2/
+claude mcp login designforyou
 ```
-Or via the npm shim (stdio):
+
+Approve the browser sign-in when prompted.
+
+### Grok
+
 ```bash
-claude mcp add designforyou -- npx -y designforyou-mcp
+grok mcp add --transport http designforyou https://designforyou.swapp1990.org/mcp/v2/
 ```
-Then run any prompt below; Claude Code opens a browser for sign-in on the first
-paid call.
+
+Then `/mcps` → `designforyou` → `i` (authorize) → browser → `r`.
+
+### OpenCode
+
+Add a remote MCP entry for the URL above, then:
+
+```bash
+opencode mcp auth designforyou
+opencode mcp list
+```
+
+### Codex (bearer fallback)
+
+1. Generate a token at https://designforyou.swapp1990.org/connect  
+2. Store as `DESIGNFORYOU_MCP_TOKEN`  
+3. Configure:
+
+```powershell
+codex mcp add designforyou --url https://designforyou.swapp1990.org/mcp/v2/ --bearer-token-env-var DESIGNFORYOU_MCP_TOKEN
+```
 
 ### Cursor
 
 [![Add to Cursor](https://img.shields.io/badge/Add%20to-Cursor-000?logo=cursor)](cursor://anysphere.cursor-deeplink/mcp/install?name=designforyou&config=eyJ1cmwiOiJodHRwczovL2Rlc2lnbmZvcnlvdS5zd2FwcDE5OTAub3JnL21jcC92Mi8ifQ==)
 
-One-click install:
-`cursor://anysphere.cursor-deeplink/mcp/install?name=designforyou&config=eyJ1cmwiOiJodHRwczovL2Rlc2lnbmZvcnlvdS5zd2FwcDE5OTAub3JnL21jcC92Mi8ifQ==`
+Or `.cursor/mcp.json`:
 
-Or add to `.cursor/mcp.json` (**Settings → MCP → Add**):
 ```json
 {
   "mcpServers": {
     "designforyou": {
-      "url": "https://designforyou.swapp1990.org/mcp/v2/"
+      "url": "https://designforyou.swapp1990.org/mcp/v2/",
+      "transport": "http"
     }
   }
 }
@@ -69,35 +95,13 @@ Or add to `.cursor/mcp.json` (**Settings → MCP → Add**):
 
 [![Install in VS Code](https://img.shields.io/badge/Install-VS%20Code-0098FF?logo=visualstudiocode)](https://insiders.vscode.dev/redirect/mcp/install?name=designforyou&config=%7B%22url%22%3A%22https%3A%2F%2Fdesignforyou.swapp1990.org%2Fmcp%2Fv2%2F%22%7D)
 
-Or add to `.vscode/mcp.json`:
-```json
-{
-  "servers": {
-    "designforyou": {
-      "url": "https://designforyou.swapp1990.org/mcp/v2/"
-    }
-  }
-}
+### Claude Desktop / stdio shim
+
+```bash
+npx -y designforyou-mcp
 ```
 
-### Claude Desktop
-Add to `claude_desktop_config.json`:
-```json
-{
-  "mcpServers": {
-    "designforyou": {
-      "command": "npx",
-      "args": ["-y", "designforyou-mcp"]
-    }
-  }
-}
-```
-(Equivalent to `npx -y mcp-remote https://designforyou.swapp1990.org/mcp/v2/` —
-the shim just pins the endpoint for you.)
-
-### ChatGPT
-DesignForYou is being submitted to the ChatGPT app directory. Until then, use the
-remote URL above in any MCP-capable client.
+Or native HTTP in `claude_desktop_config.json` with the `/mcp/v2/` URL. Complete OAuth when prompted.
 
 ## Tools
 
@@ -121,16 +125,18 @@ remote URL above in any MCP-capable client.
 
 ## How it works
 
-DesignForYou exposes a remote MCP server. On the first paid tool call, your MCP
-client discovers the OAuth flow (RFC 9728 protected-resource metadata →
-Supabase OAuth server with Dynamic Client Registration), opens a browser for
-sign-in + consent, and then calls tools with your token. Generation is metered
-against your credit balance; you buy more on the website (never in-chat).
+DesignForYou exposes a remote MCP server (Streamable HTTP). On the first paid
+tool call (or when you run `mcp login` / `mcp auth`), your client discovers the
+OAuth flow (RFC 9728 protected-resource metadata → Supabase with Dynamic Client
+Registration), opens a browser for sign-in + consent, and stores tokens.
+Generation is metered against your credit balance; top up on the website.
 
 This repository is the public home for install docs and the MCP `server.json`.
 The product itself is a hosted service — there is no self-host package.
 
 ## Links
-- App: https://designforyou.swapp1990.org
-- MCP docs: https://designforyou.swapp1990.org/docs/mcp
-- Listed on the [official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=designforyou) as `org.swapp1990.designforyou/designforyou`.
+
+- App: https://designforyou.swapp1990.org  
+- Connect: https://designforyou.swapp1990.org/connect  
+- Agent guide: https://designforyou.swapp1990.org/.well-known/mcp/connect.md  
+- [Official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=designforyou) as `org.swapp1990.designforyou/designforyou`
