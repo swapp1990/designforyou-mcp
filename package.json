@@ -6,9 +6,13 @@
   "bin": {
     "designforyou-mcp": "bin.js"
   },
+  "scripts": {
+    "test": "node --test"
+  },
   "type": "commonjs",
   "files": [
     "bin.js",
+    "local-provider.js",
     "README.md",
     "LICENSE",
     "server.json"

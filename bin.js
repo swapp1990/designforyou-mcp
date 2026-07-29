@@ -10,9 +10,14 @@
 "use strict";
 
 const { spawn } = require("node:child_process");
-const path = require("node:path");
 
 const ENDPOINT = "https://designforyou.swapp1990.org/mcp/v2/";
+
+if (process.env.DESIGNFORYOU_PROVIDER === "grok-subscription") {
+  // Explicit opt-in only. The normal invocation below remains the hosted
+  // DesignForYou OAuth proxy and is intentionally unchanged.
+  require("./local-provider").startLocalServer();
+} else {
 
 // Resolve mcp-remote's CLI entry from our own dependency so we don't depend on
 // a global install or a second npx download.
@@ -33,4 +38,5 @@ for (const sig of ["SIGINT", "SIGTERM"]) {
   process.on(sig, () => {
     if (!child.killed) child.kill(sig);
   });
+}
 }

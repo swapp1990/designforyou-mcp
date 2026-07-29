@@ -103,6 +103,82 @@ npx -y designforyou-mcp
 
 Or native HTTP in `claude_desktop_config.json` with the `/mcp/v2/` URL. Complete OAuth when prompted.
 
+### Optional local Grok CLI sidecar
+
+The default command above always uses the hosted DesignForYou MCP server. To
+run the focused local image and reference-animation tools instead, explicitly
+opt in with an installed, signed-in Grok Build CLI:
+
+```powershell
+$env:DESIGNFORYOU_PROVIDER = "grok-subscription"
+npx -y designforyou-mcp
+```
+
+This sidecar invokes `grok --single` through the CLI's existing signed-in
+session; it never accepts or forwards an xAI API key, and it denies all MCP
+tools inside the spawned CLI so generation cannot route through a hosted
+billing server. **Billing note:** the Grok Build CLI's native media tools
+(`image_gen`, `image_to_video`) call the xAI API (`api.x.ai`) with the
+signed-in session token, so each generation meters the account's xAI console
+usage — media generation is not covered by the grok.com chat subscription.
+The sidecar exposes `grok_generate_image` and `animate_reference_grok_video`,
+and verifies the requested local output file before returning it. The hosted
+tools and their providers remain the default when the variable is unset.
+(The `grok-subscription` opt-in value is kept for compatibility with existing
+client configs.)
+
+#### Use the sidecar from local Codex threads
+
+Register the checked-out sidecar as a local stdio MCP server:
+
+```powershell
+codex mcp add designforyou-grok-local `
+  --env DESIGNFORYOU_PROVIDER=grok-subscription `
+  -- node D:\MyProjects\Claude\designforyou-mcp\bin.js
+
+codex mcp list
+```
+
+Restart Codex or open a new local thread after adding the server. The thread
+can then generate a starting frame with `grok_generate_image` and pass that
+file to `animate_reference_grok_video` for an acting performance:
+
+```json
+{
+  "image_path": "D:\\assets\\actor-scene.jpg",
+  "prompt": "She notices someone entering, freezes, then forces a nervous smile. Step backward slowly while maintaining eye contact. Use a subtle handheld push-in.",
+  "line": "I wasn't expecting you.",
+  "duration": 6,
+  "aspect_ratio": "16:9",
+  "output_path": "D:\\assets\\performance.mp4"
+}
+```
+
+The reference may be supplied as `image_path`, `image_url`, or
+`image_data_url`. This is a local-development path: the Codex host must be able
+to run the installed, signed-in `grok` executable. Codex cloud threads cannot
+use the machine's Grok login or local files. Use only trusted prompts because
+the sidecar runs Grok headlessly with automatic tool approval.
+
+For video results, `public_url` is returned when Grok supplies a usable URL/key
+or when optional S3 correlation is configured. The sidecar brackets generation
+with S3 listings and accepts only one newly-created object whose key is absent
+from the baseline and whose byte size exactly matches the verified local MP4;
+it also checks HTTP accessibility. S3 settings can be supplied with
+`DESIGNFORYOU_GROK_S3_BUCKET`, `DESIGNFORYOU_GROK_S3_REGION`,
+`DESIGNFORYOU_GROK_S3_ENDPOINT`, and `DESIGNFORYOU_GROK_S3_KEY_PREFIX`, or
+discovered from the narrowly-scoped
+`[tools.zdr_video_output_s3]` and its `.read_write` credentials section in
+the local Grok config.
+Missing configuration, listing failures, ambiguous matches, and inaccessible
+objects leave the verified local success intact and include a diagnostic.
+Automatic correlation requires the AWS CLI on `PATH` and the local Grok S3
+configuration. The configured identity also needs `s3:ListBucket` restricted
+to the configured key prefix; upload-only `s3:PutObject` credentials cannot
+perform safe correlation. Credentials are passed only to the AWS child process
+and are never printed or packaged. If listing is unavailable, generation still
+returns the verified local file with an explicit diagnostic.
+
 ## Tools
 
 | Tool | Cost | What it does |
